@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">오더메이트</string>
+    <string name="login_customer">고객</string>
+    <string name="login_store">가게</string>
 </resources>
