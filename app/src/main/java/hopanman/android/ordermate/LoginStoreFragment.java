@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import hopanman.android.ordermate.databinding.FragmentLoginStoreBinding;
+
 
 public class LoginStoreFragment extends Fragment {
 
@@ -15,6 +17,6 @@ public class LoginStoreFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_login_store, container, false);
+        return FragmentLoginStoreBinding.inflate(inflater).getRoot();
     }
 }
