@@ -15,5 +15,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:label="@{@string/id}" />
+
+        <include
+            android:id="@+id/store_login_button"
+            layout="@layout/include_login_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp" />
     </LinearLayout>
 </layout>
