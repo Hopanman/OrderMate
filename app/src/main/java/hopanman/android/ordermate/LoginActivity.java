@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
+import android.widget.ProgressBar;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -11,14 +12,17 @@ public class LoginActivity extends AppCompatActivity {
 
     private LoginCustomerFragment customerFragment;
     private LoginStoreFragment storeFragment;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
+        
         customerFragment = new LoginCustomerFragment();
         storeFragment = new LoginStoreFragment();
+
+        progressBar = findViewById(R.id.progressBar);
 
         TabLayout tabs = findViewById(R.id.login_tabs);
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
