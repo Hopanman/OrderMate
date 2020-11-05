@@ -30,7 +30,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".StoreActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.OrderMate.NoActionBar"></activity>
     </application>
 
 </manifest>

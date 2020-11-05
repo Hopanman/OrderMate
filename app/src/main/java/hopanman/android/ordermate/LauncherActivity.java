@@ -40,12 +40,18 @@ public class LauncherActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             if (task.isSuccessful()) {
                                 DocumentSnapshot document = task.getResult();
-                                Class<?> activity = null;
+                                Intent intent = null;
 
-                                if (document.exists()) activity = StoreActivity.class;
-                                else activity = MainActivity.class;
+                                if (document.exists()) {
+                                    String storeName = (String)document.get("storeName");
+                                    intent = new Intent(getApplicationContext(), StoreActivity.class);
+                                    intent.putExtra("storeName", storeName);
+                                }
+                                else {
+                                    intent = new Intent(getApplicationContext(), MainActivity.class);
+                                }
 
-                                startActivity(new Intent(getApplicationContext(), activity));
+                                startActivity(intent);
                                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                                 finish();
                             }

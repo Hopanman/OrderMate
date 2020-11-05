@@ -20,6 +20,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import hopanman.android.ordermate.databinding.FragmentLoginStoreBinding;
 
@@ -70,12 +73,29 @@ public class LoginStoreFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            progressBar.setVisibility(View.INVISIBLE);
-                            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                            Intent intent = new Intent(getContext(), StoreActivity.class);
-                            startActivity(intent);
-                            getActivity().overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
-                            getActivity().finish();
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            DocumentReference docRef = db.collection("stores").document(task.getResult().getUser().getUid());
+                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        progressBar.setVisibility(View.INVISIBLE);
+                                        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                                        if (document.exists()) {
+                                            String storeName = (String)document.get("storeName");
+                                            Intent intent = new Intent(getContext(), StoreActivity.class);
+                                            intent.putExtra("storeName", storeName);
+                                            startActivity(intent);
+                                            getActivity().overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
+                                            getActivity().finish();
+                                        } else {
+                                            Toast.makeText(getContext(), "아이디 혹은 비밀번호가 일치하지 않습니다", Toast.LENGTH_LONG).show();
+                                            mAuth.signOut();
+                                        }
+                                    }
+                                }
+                            });
                         } else {
                             progressBar.setVisibility(View.INVISIBLE);
                             window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);

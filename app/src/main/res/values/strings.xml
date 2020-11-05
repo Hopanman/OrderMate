@@ -8,4 +8,9 @@
     <string name="email">이메일</string>
     <string name="password_finding">비밀번호 찾기</string>
     <string name="login">로그인</string>
+    <string name="order_list">주문내역</string>
+    <string name="last_order">지난주문</string>
+    <string name="menu_mgm">메뉴관리</string>
+    <string name="review_mgm">리뷰관리</string>
+    <string name="setting">설정</string>
 </resources>
