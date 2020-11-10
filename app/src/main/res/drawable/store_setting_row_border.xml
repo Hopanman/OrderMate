@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:left="@dimen/store_setting_row_margin_left_right"
+        android:right="@dimen/store_setting_row_margin_left_right"
+        android:height="1dp"
+        android:gravity="bottom">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/colorDivider" />
+        </shape>
+    </item>
+</layer-list>
