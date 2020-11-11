@@ -15,4 +15,13 @@
     <string name="setting">설정</string>
     <string name="store_name">가게이름</string>
     <string name="store_open">가게 열기</string>
+    <string name="store_introduction">가게 소개</string>
+    <string name="store_tel">전화번호</string>
+    <string name="store_hours">영업시간</string>
+    <string name="store_address">주소</string>
+    <string name="password_change">비밀번호 변경</string>
+    <string name="logout">로그아웃</string>
+    <string name="logout_dialog_body">로그아웃 하시겠습니까?</string>
+    <string name="dialog_positive_button">확인</string>
+    <string name="dialog_negative_button">취소</string>
 </resources>
