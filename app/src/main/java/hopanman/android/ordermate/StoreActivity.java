@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -16,6 +17,7 @@ public class StoreActivity extends AppCompatActivity {
     private StoreMenuFragment menuFragment;
     private StoreReviewFragment reviewFragment;
     private StoreSettingFragment settingFragment;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,8 @@ public class StoreActivity extends AppCompatActivity {
         menuFragment = new StoreMenuFragment();
         reviewFragment = new StoreReviewFragment();
         settingFragment = new StoreSettingFragment();
+
+        progressBar = findViewById(R.id.progressBar);
 
         BottomNavigationView navigation = findViewById(R.id.store_navigation);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
