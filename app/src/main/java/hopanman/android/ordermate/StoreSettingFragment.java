@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -77,7 +78,13 @@ public class StoreSettingFragment extends Fragment {
                         String curPassword = editText.getText().toString();
                         FirebaseUser user = mAuth.getCurrentUser();
 
+                        progressBar.setVisibility(View.VISIBLE);
+                        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
                         if (curPassword == null || curPassword.equals("")) {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
                             Toast.makeText(getContext(), "비밀번호가 일치하지 않습니다.", Toast.LENGTH_LONG).show();
                             return;
                         }
@@ -87,6 +94,9 @@ public class StoreSettingFragment extends Fragment {
                             user.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
                                     if(task.isSuccessful()) {
                                         processPasswordChange();
                                     } else {
@@ -156,9 +166,9 @@ public class StoreSettingFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 if (!isAvailablePassword(s.toString())) {
-                    editText1.setError("영문,숫자,특수문자 포함 8자 이상 입력해주세요");
+                    layout1.setError("영문,숫자,특수문자 포함 8자 이상 입력해주세요");
                 } else {
-                    editText1.setError(null);
+                    layout1.setError(null);
                 }
             }
         });
@@ -190,9 +200,9 @@ public class StoreSettingFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 if (!s.toString().equals(editText1.getText().toString())) {
-                    editText2.setError("비밀번호가 일치하지 않습니다");
+                    layout2.setError("비밀번호가 일치하지 않습니다");
                 } else {
-                    editText2.setError(null);
+                    layout2.setError(null);
                 }
             }
         });
@@ -204,7 +214,33 @@ public class StoreSettingFragment extends Fragment {
         builder.setTitle(R.string.password_change).setView(rootLayout).setPositiveButton(R.string.dialog_positive_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                String newPassword = editText1.getText().toString();
+                if (!isAvailablePassword(newPassword)) {
+                    Toast.makeText(getContext(), R.string.toast_password_incorrect, Toast.LENGTH_LONG).show();
+                    processPasswordChange();
+                } else if (!newPassword.equals(editText2.getText().toString())) {
+                    Toast.makeText(getContext(), R.string.toast_password_confirm_unmatch, Toast.LENGTH_LONG).show();
+                    processPasswordChange();
+                } else {
+                    FirebaseUser user = mAuth.getCurrentUser();
 
+                    progressBar.setVisibility(View.VISIBLE);
+                    window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+                    user.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+                            if (task.isSuccessful()) {
+                                Toast.makeText(getContext(), R.string.toast_password_updated, Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(getContext(), R.string.toast_password_updated_failed, Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
             }
         }).setNegativeButton(R.string.dialog_negative_button, new DialogInterface.OnClickListener() {
             @Override

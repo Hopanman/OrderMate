@@ -24,4 +24,8 @@
     <string name="logout_dialog_body">로그아웃 하시겠습니까?</string>
     <string name="dialog_positive_button">확인</string>
     <string name="dialog_negative_button">취소</string>
+    <string name="toast_password_incorrect">비밀번호를 올바른 형식으로 입력해주세요.</string>
+    <string name="toast_password_confirm_unmatch">새 비밀번호와 비밀번호 확인이 일치하지 않습니다.</string>
+    <string name="toast_password_updated">비밀번호가 성공적으로 변경되었습니다.</string>
+    <string name="toast_password_updated_failed">비밀번호 변경에 실패하였습니다.</string>
 </resources>
