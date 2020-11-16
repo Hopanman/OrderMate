@@ -18,8 +18,11 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,6 +42,7 @@ import hopanman.android.ordermate.databinding.FragmentStoreSettingBinding;
 
 public class StoreSettingFragment extends Fragment {
 
+    private TextView storeNameView;
     private ViewGroup passwordRow;
     private ViewGroup logoutRow;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -52,6 +56,45 @@ public class StoreSettingFragment extends Fragment {
 
         progressBar = ((StoreActivity)getActivity()).progressBar;
         window = ((StoreActivity)getActivity()).getWindow();
+
+        storeNameView = rootView.findViewById(R.id.store_name);
+        ImageButton storeNameButton = rootView.findViewById(R.id.store_name_button);
+        storeNameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View view = LayoutInflater.from(getContext()).inflate(R.layout.view_dialog_edittext, null);
+                TextInputLayout layout = view.findViewById(R.id.edittext_layout);
+                layout.setHint("가게이름");
+                TextInputEditText editText = layout.findViewById(R.id.edittext);
+                editText.setText(storeNameView.getText());
+                editText.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_NORMAL);
+                InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                editText.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        editText.requestFocus();
+                        editText.setSelection(storeNameView.getText().length());
+                        inputManager.showSoftInput(editText, 0);
+                    }
+                }, 200);
+
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+                builder.setView(view).setPositiveButton(R.string.dialog_positive_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String storeName = editText.getText().toString();
+                        if (storeName == null || storeName.equals("") || storeName.equals(storeNameView.getText().toString())) return;
+
+                        
+                    }
+                }).setNegativeButton(R.string.dialog_negative_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).setCancelable(false).show();
+            }
+        });
 
         passwordRow = rootView.findViewById(R.id.password_change);
         passwordRow.setOnClickListener(new View.OnClickListener() {
@@ -142,6 +185,8 @@ public class StoreSettingFragment extends Fragment {
     }
 
     private void processPasswordChange() {
+        ScrollView scrollView = new ScrollView(getContext());
+        scrollView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         LinearLayout rootLayout = new LinearLayout(getContext());
         rootLayout.setLayoutParams(params);
@@ -209,9 +254,10 @@ public class StoreSettingFragment extends Fragment {
 
         rootLayout.addView(view1);
         rootLayout.addView(view2);
+        scrollView.addView(rootLayout);
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-        builder.setTitle(R.string.password_change).setView(rootLayout).setPositiveButton(R.string.dialog_positive_button, new DialogInterface.OnClickListener() {
+        builder.setTitle(R.string.password_change).setView(scrollView).setPositiveButton(R.string.dialog_positive_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newPassword = editText1.getText().toString();
