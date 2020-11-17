@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -26,14 +27,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.regex.Pattern;
 
@@ -42,10 +48,12 @@ import hopanman.android.ordermate.databinding.FragmentStoreSettingBinding;
 
 public class StoreSettingFragment extends Fragment {
 
-    private TextView storeNameView;
-    private ViewGroup passwordRow;
-    private ViewGroup logoutRow;
+    private TextView storeNameView, storeTelView;
+    private SwitchMaterial storeOpenSwitch;
+    private ViewGroup passwordRow, logoutRow;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private FirebaseUser user;
+    private DocumentReference storeRef;
     private ProgressBar progressBar;
     private Window window;
 
@@ -53,6 +61,9 @@ public class StoreSettingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup)FragmentStoreSettingBinding.inflate(inflater).getRoot();
+
+        user = mAuth.getCurrentUser();
+        if (user != null) storeRef = FirebaseFirestore.getInstance().collection("stores").document(user.getUid());
 
         progressBar = ((StoreActivity)getActivity()).progressBar;
         window = ((StoreActivity)getActivity()).getWindow();
@@ -85,7 +96,24 @@ public class StoreSettingFragment extends Fragment {
                         String storeName = editText.getText().toString();
                         if (storeName == null || storeName.equals("") || storeName.equals(storeNameView.getText().toString())) return;
 
-                        
+                        if (storeRef != null) {
+                            activateProgressBar();
+                            storeRef.update("storeName", storeName).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    deactivateProgressBar();
+                                    storeNameView.setText(storeName);
+                                    ((StoreActivity) getActivity()).getSupportActionBar().setTitle(storeName);
+                                    Toast.makeText(getContext(), "가게이름이 성공적으로 변경되었습니다.", Toast.LENGTH_LONG).show();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    deactivateProgressBar();
+                                    Toast.makeText(getContext(), "가게이름 변경에 실패하였습니다.", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
                     }
                 }).setNegativeButton(R.string.dialog_negative_button, new DialogInterface.OnClickListener() {
                     @Override
@@ -95,6 +123,37 @@ public class StoreSettingFragment extends Fragment {
                 }).setCancelable(false).show();
             }
         });
+
+        storeOpenSwitch = rootView.findViewById(R.id.store_open);
+        storeOpenSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (storeRef != null) {
+                    activateProgressBar();
+                    storeRef.update("isOpen", isChecked).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            deactivateProgressBar();
+                            if (isChecked) {
+                                Toast.makeText(getContext(), "가게가 열렸습니다.", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(getContext(), "가게가 닫혔습니다.", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            deactivateProgressBar();
+                            buttonView.setChecked(!isChecked);
+                            Toast.makeText(getContext(), "문제가 발생하였습니다. 관리자에게 문의해주세요.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        });
+
+        ViewGroup storeTelRow = rootView.findViewById(R.id.store_tel);
+        storeTelView = storeTelRow.findViewById(R.id.contents);
 
         passwordRow = rootView.findViewById(R.id.password_change);
         passwordRow.setOnClickListener(new View.OnClickListener() {
@@ -119,14 +178,11 @@ public class StoreSettingFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String curPassword = editText.getText().toString();
-                        FirebaseUser user = mAuth.getCurrentUser();
 
-                        progressBar.setVisibility(View.VISIBLE);
-                        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                        activateProgressBar();
 
                         if (curPassword == null || curPassword.equals("")) {
-                            progressBar.setVisibility(View.INVISIBLE);
-                            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                            deactivateProgressBar();
 
                             Toast.makeText(getContext(), "비밀번호가 일치하지 않습니다.", Toast.LENGTH_LONG).show();
                             return;
@@ -137,8 +193,7 @@ public class StoreSettingFragment extends Fragment {
                             user.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                                    deactivateProgressBar();
 
                                     if(task.isSuccessful()) {
                                         processPasswordChange();
@@ -268,16 +323,12 @@ public class StoreSettingFragment extends Fragment {
                     Toast.makeText(getContext(), R.string.toast_password_confirm_unmatch, Toast.LENGTH_LONG).show();
                     processPasswordChange();
                 } else {
-                    FirebaseUser user = mAuth.getCurrentUser();
-
-                    progressBar.setVisibility(View.VISIBLE);
-                    window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    activateProgressBar();
 
                     user.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            progressBar.setVisibility(View.INVISIBLE);
-                            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                            deactivateProgressBar();
 
                             if (task.isSuccessful()) {
                                 Toast.makeText(getContext(), R.string.toast_password_updated, Toast.LENGTH_LONG).show();
@@ -301,5 +352,15 @@ public class StoreSettingFragment extends Fragment {
         boolean result = Pattern.compile(regex).matcher(password).matches();
 
         return result;
+    }
+
+    private void activateProgressBar() {
+        progressBar.setVisibility(View.VISIBLE);
+        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private void deactivateProgressBar() {
+        progressBar.setVisibility(View.INVISIBLE);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 }
