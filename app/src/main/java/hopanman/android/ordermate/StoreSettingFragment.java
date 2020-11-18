@@ -154,6 +154,12 @@ public class StoreSettingFragment extends Fragment {
 
         ViewGroup storeTelRow = rootView.findViewById(R.id.store_tel);
         storeTelView = storeTelRow.findViewById(R.id.contents);
+        storeTelRow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                processStoreTelChange();
+            }
+        });
 
         passwordRow = rootView.findViewById(R.id.password_change);
         passwordRow.setOnClickListener(new View.OnClickListener() {
@@ -347,9 +353,90 @@ public class StoreSettingFragment extends Fragment {
         }).setCancelable(false).show();
     }
 
+    private void processStoreTelChange() {
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.view_dialog_edittext, null);
+        TextInputLayout layout = view.findViewById(R.id.edittext_layout);
+        layout.setHint("전화번호");
+        TextInputEditText editText = layout.findViewById(R.id.edittext);
+        editText.setText(storeTelView.getText());
+        editText.setInputType(InputType.TYPE_CLASS_PHONE);
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!isAvailableTel(s.toString())) {
+                    layout.setError("전화번호를 '-' 포함해서 올바르게 입력해주세요");
+                } else {
+                    layout.setError(null);
+                }
+            }
+        });
+        InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        editText.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                editText.requestFocus();
+                editText.setSelection(storeTelView.getText().length());
+                inputManager.showSoftInput(editText, 0);
+            }
+        }, 200);
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        builder.setView(view).setPositiveButton(R.string.dialog_positive_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String storeTel = editText.getText().toString();
+                if (storeTel == null || storeTel.equals("") || storeTel.equals(storeTelView.getText().toString())) return;
+                else if (!isAvailableTel(storeTel)) {
+                    Toast.makeText(getContext(), "전화번호를 올바르게 입력해주세요.", Toast.LENGTH_LONG).show();
+                    processStoreTelChange();
+                } else {
+                    if (storeRef != null) {
+                        activateProgressBar();
+                        storeRef.update("storeTel", storeTel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                deactivateProgressBar();
+                                storeTelView.setText(storeTel);
+                                Toast.makeText(getContext(), "전화번호가 성공적으로 변경되었습니다.", Toast.LENGTH_LONG).show();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                deactivateProgressBar();
+                                Toast.makeText(getContext(), "전화번호 변경에 실패하였습니다.", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }
+            }
+        }).setNegativeButton(R.string.dialog_negative_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        }).setCancelable(false).show();
+    }
+
     private boolean isAvailablePassword(String password) {
         String regex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$";
         boolean result = Pattern.compile(regex).matcher(password).matches();
+
+        return result;
+    }
+
+    private boolean isAvailableTel(String tel) {
+        String regex = "^(01[016789]{1}|02|0[3-9]{1}[0-9]{1})-[0-9]{3,4}-[0-9]{4}$";
+        boolean result = Pattern.compile(regex).matcher(tel).matches();
 
         return result;
     }
