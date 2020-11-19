@@ -48,7 +48,7 @@ import hopanman.android.ordermate.databinding.FragmentStoreSettingBinding;
 
 public class StoreSettingFragment extends Fragment {
 
-    private TextView storeNameView, storeTelView;
+    private TextView storeNameView, storeTelView, storeIntroductionView, storeHoursView;
     private SwitchMaterial storeOpenSwitch;
     private ViewGroup passwordRow, logoutRow;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -67,6 +67,8 @@ public class StoreSettingFragment extends Fragment {
 
         progressBar = ((StoreActivity)getActivity()).progressBar;
         window = ((StoreActivity)getActivity()).getWindow();
+        int displayWidth = getResources().getDisplayMetrics().widthPixels;
+        int storeContentsViewMaxWidth = (int)(displayWidth * 9 / 10.0);
 
         storeNameView = rootView.findViewById(R.id.store_name);
         ImageButton storeNameButton = rootView.findViewById(R.id.store_name_button);
@@ -152,12 +154,130 @@ public class StoreSettingFragment extends Fragment {
             }
         });
 
+        ViewGroup storeIntroductionRow = rootView.findViewById(R.id.store_introduction);
+        storeIntroductionView = storeIntroductionRow.findViewById(R.id.contents);
+        storeIntroductionView.setMaxWidth(storeContentsViewMaxWidth);
+        storeIntroductionRow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View view = LayoutInflater.from(getContext()).inflate(R.layout.view_dialog_edittext, null);
+                TextInputLayout layout = view.findViewById(R.id.edittext_layout);
+                layout.setHint("가게 소개");
+                TextInputEditText editText = layout.findViewById(R.id.edittext);
+                editText.setText(storeIntroductionView.getText());
+                editText.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                editText.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        editText.requestFocus();
+                        editText.setSelection(storeIntroductionView.getText().length());
+                        inputManager.showSoftInput(editText, 0);
+                    }
+                }, 200);
+                ScrollView scrollView = new ScrollView(getContext());
+                scrollView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                scrollView.addView(view);
+
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+                builder.setView(scrollView).setPositiveButton(R.string.dialog_positive_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String storeIntroduction = editText.getText().toString();
+                        if (storeIntroduction == null || storeIntroduction.equals("") || storeIntroduction.equals(storeIntroductionView.getText().toString())) return;
+
+                        if (storeRef != null) {
+                            activateProgressBar();
+                            storeRef.update("storeIntroduction", storeIntroduction).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    deactivateProgressBar();
+                                    storeIntroductionView.setText(storeIntroduction);
+                                    Toast.makeText(getContext(), "가게소개가 성공적으로 변경되었습니다.", Toast.LENGTH_LONG).show();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    deactivateProgressBar();
+                                    Toast.makeText(getContext(), "가게소개 변경에 실패하였습니다.", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                    }
+                }).setNegativeButton(R.string.dialog_negative_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).setCancelable(false).show();
+            }
+        });
+
         ViewGroup storeTelRow = rootView.findViewById(R.id.store_tel);
         storeTelView = storeTelRow.findViewById(R.id.contents);
         storeTelRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 processStoreTelChange();
+            }
+        });
+
+        ViewGroup storeHoursRow = rootView.findViewById(R.id.store_hours);
+        storeHoursView = storeHoursRow.findViewById(R.id.contents);
+        storeHoursView.setMaxWidth(storeContentsViewMaxWidth);
+        storeHoursRow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View view = LayoutInflater.from(getContext()).inflate(R.layout.view_dialog_edittext, null);
+                TextInputLayout layout = view.findViewById(R.id.edittext_layout);
+                layout.setHint("영업시간");
+                TextInputEditText editText = layout.findViewById(R.id.edittext);
+                editText.setText(storeHoursView.getText());
+                editText.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                editText.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        editText.requestFocus();
+                        editText.setSelection(storeHoursView.getText().length());
+                        inputManager.showSoftInput(editText, 0);
+                    }
+                }, 200);
+                ScrollView scrollView = new ScrollView(getContext());
+                scrollView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                scrollView.addView(view);
+
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+                builder.setView(scrollView).setPositiveButton(R.string.dialog_positive_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String storeHours = editText.getText().toString();
+                        if (storeHours == null || storeHours.equals("") || storeHours.equals(storeHoursView.getText().toString())) return;
+
+                        if (storeRef != null) {
+                            activateProgressBar();
+                            storeRef.update("storeHours", storeHours).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    deactivateProgressBar();
+                                    storeHoursView.setText(storeHours);
+                                    Toast.makeText(getContext(), "영업시간이 성공적으로 변경되었습니다.", Toast.LENGTH_LONG).show();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    deactivateProgressBar();
+                                    Toast.makeText(getContext(), "영업시간 변경에 실패하였습니다.", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                    }
+                }).setNegativeButton(R.string.dialog_negative_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).setCancelable(false).show();
             }
         });
 
