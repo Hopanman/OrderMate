@@ -48,7 +48,7 @@ import hopanman.android.ordermate.databinding.FragmentStoreSettingBinding;
 
 public class StoreSettingFragment extends Fragment {
 
-    private TextView storeNameView, storeTelView, storeIntroductionView, storeHoursView;
+    private TextView storeNameView, storeTelView, storeIntroductionView, storeHoursView, storeAddressView;
     private SwitchMaterial storeOpenSwitch;
     private ViewGroup passwordRow, logoutRow;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -278,6 +278,16 @@ public class StoreSettingFragment extends Fragment {
 
                     }
                 }).setCancelable(false).show();
+            }
+        });
+
+        ViewGroup storeAddressRow = rootView.findViewById(R.id.store_address);
+        storeAddressView = storeHoursRow.findViewById(R.id.contents);
+        storeAddressView.setMaxWidth(storeContentsViewMaxWidth);
+        storeAddressRow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                processStoreAddressChange();
             }
         });
 
@@ -538,6 +548,41 @@ public class StoreSettingFragment extends Fragment {
                         });
                     }
                 }
+            }
+        }).setNegativeButton(R.string.dialog_negative_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        }).setCancelable(false).show();
+    }
+
+    private void processStoreAddressChange() {
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.view_dialog_edittext, null);
+        TextInputLayout layout = view.findViewById(R.id.edittext_layout);
+        layout.setHint("주소");
+        layout.setStartIconDrawable(androidx.appcompat.R.drawable.abc_ic_search_api_material);
+        TextInputEditText editText = layout.findViewById(R.id.edittext);
+        editText.setText(storeAddressView.getText());
+        editText.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_NORMAL);
+        InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        editText.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                editText.requestFocus();
+                editText.setSelection(storeAddressView.getText().length());
+                inputManager.showSoftInput(editText, 0);
+            }
+        }, 200);
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        builder.setTitle("주소 검색").setView(view).setPositiveButton(R.string.dialog_positive_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String query = editText.getText().toString();
+                if (query == null || query.equals("") || query.equals(storeAddressView.getText().toString())) return;
+
+
             }
         }).setNegativeButton(R.string.dialog_negative_button, new DialogInterface.OnClickListener() {
             @Override
