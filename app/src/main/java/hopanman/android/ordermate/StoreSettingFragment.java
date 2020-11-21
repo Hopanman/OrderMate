@@ -26,6 +26,12 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,6 +47,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.regex.Pattern;
 
 import hopanman.android.ordermate.databinding.FragmentStoreSettingBinding;
@@ -48,12 +58,15 @@ import hopanman.android.ordermate.databinding.FragmentStoreSettingBinding;
 
 public class StoreSettingFragment extends Fragment {
 
+    private static final String API_KEY = "1DDE1A81-E100-37F2-B480-4FD8BD36C1D4";
+
     private TextView storeNameView, storeTelView, storeIntroductionView, storeHoursView, storeAddressView;
     private SwitchMaterial storeOpenSwitch;
     private ViewGroup passwordRow, logoutRow;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser user;
     private DocumentReference storeRef;
+    private RequestQueue requestQueue;
     private ProgressBar progressBar;
     private Window window;
 
@@ -147,7 +160,7 @@ public class StoreSettingFragment extends Fragment {
                         public void onFailure(@NonNull Exception e) {
                             deactivateProgressBar();
                             buttonView.setChecked(!isChecked);
-                            Toast.makeText(getContext(), "문제가 발생하였습니다. 관리자에게 문의해주세요.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), R.string.toast_problem_occurred, Toast.LENGTH_LONG).show();
                         }
                     });
                 }
@@ -287,6 +300,7 @@ public class StoreSettingFragment extends Fragment {
         storeAddressRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                requestQueue = Volley.newRequestQueue(getContext());
                 processStoreAddressChange();
             }
         });
@@ -582,7 +596,52 @@ public class StoreSettingFragment extends Fragment {
                 String query = editText.getText().toString();
                 if (query == null || query.equals("") || query.equals(storeAddressView.getText().toString())) return;
 
+                activateProgressBar();
 
+                final int SIZE = 1;
+                String url = "http://api.vworld.kr/req/search?request=search&type=address&category=road";
+                url += "&size=" + SIZE;
+                url += "&key=" + API_KEY;
+                url += "&query=" + query;
+
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        deactivateProgressBar();
+                        try {
+                            JSONObject result = response.getJSONObject("response");
+                            String status = result.getString("status");
+
+                            if (status.equals("OK")) {
+                                JSONArray addressArray = result.getJSONObject("result").getJSONArray("items");
+
+                                for (int i = 0; i < addressArray.length(); i++) {
+                                    String address = addressArray.getJSONObject(i).getJSONObject("address").getString("road");
+                                    double latitude = addressArray.getJSONObject(i).getJSONObject("point").getDouble("y");
+                                    double longitude = addressArray.getJSONObject(i).getJSONObject("point").getDouble("x");
+
+                                    
+                                }
+                            } else if (status.equals("NOT_FOUND")) {
+                                Toast.makeText(getContext(), R.string.toast_no_results_found, Toast.LENGTH_LONG).show();
+                                processStoreAddressChange();
+                            } else {
+                                String msg = result.getJSONObject("error").getString("text");
+                                Toast.makeText(getContext(), R.string.toast_problem_occurred, Toast.LENGTH_LONG).show();
+                                Log.e("StoreSettingFragment", msg);
+                            }
+                        } catch (JSONException e) {
+                            Toast.makeText(getContext(), R.string.toast_problem_occurred, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        deactivateProgressBar();
+                        Toast.makeText(getContext(), R.string.toast_problem_occurred, Toast.LENGTH_LONG).show();
+                    }
+                });
+                requestQueue.add(request);
             }
         }).setNegativeButton(R.string.dialog_negative_button, new DialogInterface.OnClickListener() {
             @Override

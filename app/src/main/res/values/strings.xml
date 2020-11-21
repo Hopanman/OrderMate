@@ -28,4 +28,6 @@
     <string name="toast_password_confirm_unmatch">새 비밀번호와 비밀번호 확인이 일치하지 않습니다.</string>
     <string name="toast_password_updated">비밀번호가 성공적으로 변경되었습니다.</string>
     <string name="toast_password_updated_failed">비밀번호 변경에 실패하였습니다.</string>
+    <string name="toast_problem_occurred">문제가 발생하였습니다. 관리자에게 문의해주세요.</string>
+    <string name="toast_no_results_found">검색 결과가 없습니다.</string>
 </resources>
