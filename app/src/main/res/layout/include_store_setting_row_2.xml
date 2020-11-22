@@ -12,7 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/store_setting_row_height"
-        android:background="@drawable/store_setting_row_border">
+        android:background="@drawable/row_border">
 
         <TextView
             android:id="@+id/contents"
