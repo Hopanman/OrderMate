@@ -6,7 +6,10 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.InputType;
@@ -46,11 +49,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import hopanman.android.ordermate.databinding.FragmentStoreSettingBinding;
@@ -69,6 +74,7 @@ public class StoreSettingFragment extends Fragment {
     private RequestQueue requestQueue;
     private ProgressBar progressBar;
     private Window window;
+    private AlertDialog addressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -295,13 +301,13 @@ public class StoreSettingFragment extends Fragment {
         });
 
         ViewGroup storeAddressRow = rootView.findViewById(R.id.store_address);
-        storeAddressView = storeHoursRow.findViewById(R.id.contents);
+        storeAddressView = storeAddressRow.findViewById(R.id.contents);
         storeAddressView.setMaxWidth(storeContentsViewMaxWidth);
         storeAddressRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 requestQueue = Volley.newRequestQueue(getContext());
-                processStoreAddressChange();
+                searchStoreAddress();
             }
         });
 
@@ -571,7 +577,7 @@ public class StoreSettingFragment extends Fragment {
         }).setCancelable(false).show();
     }
 
-    private void processStoreAddressChange() {
+    private void searchStoreAddress() {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.view_dialog_edittext, null);
         TextInputLayout layout = view.findViewById(R.id.edittext_layout);
         layout.setHint("주소");
@@ -598,7 +604,7 @@ public class StoreSettingFragment extends Fragment {
 
                 activateProgressBar();
 
-                final int SIZE = 1;
+                final int SIZE = 100;
                 String url = "http://api.vworld.kr/req/search?request=search&type=address&category=road";
                 url += "&size=" + SIZE;
                 url += "&key=" + API_KEY;
@@ -614,17 +620,20 @@ public class StoreSettingFragment extends Fragment {
 
                             if (status.equals("OK")) {
                                 JSONArray addressArray = result.getJSONObject("result").getJSONArray("items");
+                                ArrayList<Address> addressList = new ArrayList<>();
 
                                 for (int i = 0; i < addressArray.length(); i++) {
                                     String address = addressArray.getJSONObject(i).getJSONObject("address").getString("road");
                                     double latitude = addressArray.getJSONObject(i).getJSONObject("point").getDouble("y");
                                     double longitude = addressArray.getJSONObject(i).getJSONObject("point").getDouble("x");
-
-                                    
+                                    GeoPoint coordinates = new GeoPoint(latitude, longitude);
+                                    addressList.add(new Address(address, coordinates));
                                 }
+
+                                processStoreAddressChange(addressList);
                             } else if (status.equals("NOT_FOUND")) {
                                 Toast.makeText(getContext(), R.string.toast_no_results_found, Toast.LENGTH_LONG).show();
-                                processStoreAddressChange();
+                                searchStoreAddress();
                             } else {
                                 String msg = result.getJSONObject("error").getString("text");
                                 Toast.makeText(getContext(), R.string.toast_problem_occurred, Toast.LENGTH_LONG).show();
@@ -642,6 +651,100 @@ public class StoreSettingFragment extends Fragment {
                     }
                 });
                 requestQueue.add(request);
+            }
+        }).setNegativeButton(R.string.dialog_negative_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        }).setCancelable(false).show();
+    }
+
+    private void processStoreAddressChange(ArrayList<Address> addressList) {
+        class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressHolder> {
+
+            private ArrayList<Address> addressItems = new ArrayList<>();
+
+            public void setAddressItems(ArrayList<Address> addressItems) {
+                this.addressItems = addressItems;
+            }
+
+            @NonNull
+            @Override
+            public AddressHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+                View addressItemView = inflater.inflate(R.layout.view_dialog_address_item, parent, false);
+
+                return new AddressHolder(addressItemView);
+            }
+
+            @Override
+            public void onBindViewHolder(@NonNull AddressHolder holder, int position) {
+                holder.setAddressItem(addressItems.get(position));
+            }
+
+            @Override
+            public int getItemCount() {
+                return addressItems.size();
+            }
+
+            class AddressHolder extends RecyclerView.ViewHolder {
+
+                private TextView addressName;
+                private GeoPoint addressCdn;
+
+                public AddressHolder(@NonNull View itemView) {
+                    super(itemView);
+
+                    addressName = itemView.findViewById(R.id.address);
+                    itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            addressDialog.cancel();
+                            addressDialog = null;
+
+                            if (storeRef != null) {
+                                activateProgressBar();
+
+                                String storeAddress = addressName.getText().toString();
+                                storeRef.update("storeAddress", storeAddress, "storeCoordinates", addressCdn).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        deactivateProgressBar();
+                                        storeAddressView.setText(storeAddress);
+                                        Toast.makeText(getContext(), "주소가 성공적으로 변경되었습니다.", Toast.LENGTH_LONG).show();
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        deactivateProgressBar();
+                                        Toast.makeText(getContext(), "주소 변경에 실패하였습니다.", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+
+                public void setAddressItem(Address addressItem) {
+                    addressName.setText(addressItem.getAddressName());
+                    addressCdn = addressItem.getAddressCdn();
+                }
+            }
+        }
+
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.view_dialog_address_list, null);
+        RecyclerView recyclerView = view.findViewById(R.id.address_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        AddressAdapter adapter = new AddressAdapter();
+        adapter.setAddressItems(addressList);
+        recyclerView.setAdapter(adapter);
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        addressDialog = builder.setTitle("주소 선택").setView(view).setPositiveButton("다시 검색", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                searchStoreAddress();
             }
         }).setNegativeButton(R.string.dialog_negative_button, new DialogInterface.OnClickListener() {
             @Override
