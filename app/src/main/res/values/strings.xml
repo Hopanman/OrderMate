@@ -30,4 +30,8 @@
     <string name="toast_password_updated_failed">비밀번호 변경에 실패하였습니다.</string>
     <string name="toast_problem_occurred">문제가 발생하였습니다. 관리자에게 문의해주세요.</string>
     <string name="toast_no_results_found">검색 결과가 없습니다.</string>
+    <string-array name="dialog_picture_select_items">
+        <item>사진 촬영</item>
+        <item>앨범에서 사진 선택</item>
+    </string-array>
 </resources>

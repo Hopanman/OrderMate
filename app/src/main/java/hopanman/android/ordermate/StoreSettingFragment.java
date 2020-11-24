@@ -40,6 +40,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -66,6 +67,7 @@ public class StoreSettingFragment extends Fragment {
     private static final String API_KEY = "1DDE1A81-E100-37F2-B480-4FD8BD36C1D4";
 
     private TextView storeNameView, storeTelView, storeIntroductionView, storeHoursView, storeAddressView;
+    private ShapeableImageView storeImageView;
     private SwitchMaterial storeOpenSwitch;
     private ViewGroup passwordRow, logoutRow;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -88,6 +90,20 @@ public class StoreSettingFragment extends Fragment {
         window = ((StoreActivity)getActivity()).getWindow();
         int displayWidth = getResources().getDisplayMetrics().widthPixels;
         int storeContentsViewMaxWidth = (int)(displayWidth * 9 / 10.0);
+
+        storeImageView = rootView.findViewById(R.id.store_image);
+        storeImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+                builder.setTitle("가게 사진").setItems(R.array.dialog_picture_select_items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        
+                    }
+                }).show();
+            }
+        });
 
         storeNameView = rootView.findViewById(R.id.store_name);
         ImageButton storeNameButton = rootView.findViewById(R.id.store_name_button);
