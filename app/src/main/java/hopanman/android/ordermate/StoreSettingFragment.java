@@ -1,16 +1,21 @@
 package hopanman.android.ordermate;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -56,6 +61,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -77,6 +84,7 @@ public class StoreSettingFragment extends Fragment {
     private ProgressBar progressBar;
     private Window window;
     private AlertDialog addressDialog;
+    private final int REQUEST_CAMERA_PERMISSION_CODE = 101;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -99,7 +107,22 @@ public class StoreSettingFragment extends Fragment {
                 builder.setTitle("가게 사진").setItems(R.array.dialog_picture_select_items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        
+                        boolean hasCameraPermission = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+                        boolean hasStorageAccessPermission = (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                                                          && (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+                        switch (which) {
+                            case 0:
+                                if (hasCameraPermission && hasStorageAccessPermission) {
+                                    takePicture();
+                                    return;
+                                }
+                                requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION_CODE);
+                                break;
+                            case 1:
+                                Log.d("StoreSettingFragment", "앨범에서 사진 선택");
+                                break;
+                            default:
+                        }
                     }
                 }).show();
             }
@@ -409,6 +432,49 @@ public class StoreSettingFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (grantResults.length > 0) {
+            boolean hasPermissions = true;
+            for (int grantResult : grantResults) {
+                if (grantResult == PackageManager.PERMISSION_DENIED) {
+                    hasPermissions = false;
+                    break;
+                }
+            }
+
+            if (hasPermissions) {
+                switch (requestCode) {
+                    case REQUEST_CAMERA_PERMISSION_CODE:
+                        takePicture();
+                        break;
+                    default:
+                }
+            }
+        }
+    }
+
+    private void takePicture() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
+            if (!storageDir.exists()) storageDir.mkdirs();
+
+            File imageFile = null;
+            try {
+                imageFile = File.createTempFile("storeImage", ".jpg", storageDir);
+            } catch (IOException e) {
+                Log.e("StoreSettingFragment", e.getMessage());
+                Toast.makeText(getContext(), R.string.toast_problem_occurred, Toast.LENGTH_LONG).show();
+            }
+
+            if (imageFile != null) {
+
+            }
+        }
     }
 
     private void processPasswordChange() {
