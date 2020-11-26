@@ -5,11 +5,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -84,7 +87,7 @@ public class StoreSettingFragment extends Fragment {
     private ProgressBar progressBar;
     private Window window;
     private AlertDialog addressDialog;
-    private final int REQUEST_CAMERA_PERMISSION_CODE = 101;
+    private final int REQUEST_CAMERA_CODE = 101;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -116,7 +119,7 @@ public class StoreSettingFragment extends Fragment {
                                     takePicture();
                                     return;
                                 }
-                                requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION_CODE);
+                                requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CAMERA_CODE);
                                 break;
                             case 1:
                                 Log.d("StoreSettingFragment", "앨범에서 사진 선택");
@@ -447,7 +450,7 @@ public class StoreSettingFragment extends Fragment {
 
             if (hasPermissions) {
                 switch (requestCode) {
-                    case REQUEST_CAMERA_PERMISSION_CODE:
+                    case REQUEST_CAMERA_CODE:
                         takePicture();
                         break;
                     default:
@@ -472,9 +475,18 @@ public class StoreSettingFragment extends Fragment {
             }
 
             if (imageFile != null) {
-
+                Uri imageUri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", imageFile);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(intent, REQUEST_CAMERA_CODE);
             }
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
     }
 
     private void processPasswordChange() {
