@@ -59,6 +59,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,7 +69,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 import hopanman.android.ordermate.databinding.FragmentStoreSettingBinding;
@@ -78,11 +83,13 @@ public class StoreSettingFragment extends Fragment {
 
     private TextView storeNameView, storeTelView, storeIntroductionView, storeHoursView, storeAddressView;
     private ShapeableImageView storeImageView;
+    private Uri storeImageUri;
     private SwitchMaterial storeOpenSwitch;
     private ViewGroup passwordRow, logoutRow;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser user;
     private DocumentReference storeRef;
+    private StorageReference storeImageRef;
     private RequestQueue requestQueue;
     private ProgressBar progressBar;
     private Window window;
@@ -95,7 +102,10 @@ public class StoreSettingFragment extends Fragment {
         ViewGroup rootView = (ViewGroup)FragmentStoreSettingBinding.inflate(inflater).getRoot();
 
         user = mAuth.getCurrentUser();
-        if (user != null) storeRef = FirebaseFirestore.getInstance().collection("stores").document(user.getUid());
+        if (user != null) {
+            storeRef = FirebaseFirestore.getInstance().collection("stores").document(user.getUid());
+            storeImageRef = FirebaseStorage.getInstance().getReference().child("storeImages").child(user.getUid());
+        }
 
         progressBar = ((StoreActivity)getActivity()).progressBar;
         window = ((StoreActivity)getActivity()).getWindow();
@@ -467,16 +477,17 @@ public class StoreSettingFragment extends Fragment {
             if (!storageDir.exists()) storageDir.mkdirs();
 
             File imageFile = null;
+            String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss_").format(new Date());
             try {
-                imageFile = File.createTempFile("storeImage", ".jpg", storageDir);
+                imageFile = File.createTempFile(timestamp, ".jpg", storageDir);
             } catch (IOException e) {
                 Log.e("StoreSettingFragment", e.getMessage());
                 Toast.makeText(getContext(), R.string.toast_problem_occurred, Toast.LENGTH_LONG).show();
             }
 
             if (imageFile != null) {
-                Uri imageUri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", imageFile);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                storeImageUri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", imageFile);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, storeImageUri);
                 startActivityForResult(intent, REQUEST_CAMERA_CODE);
             }
         }
@@ -486,7 +497,56 @@ public class StoreSettingFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (resultCode == getActivity().RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_CAMERA_CODE:
+                    processStoreImageChange(storeImageUri);
+                    break;
+            }
+        }
+    }
 
+    private void processStoreImageChange(Uri imageUri) {
+        if (storeImageRef != null) {
+            activateProgressBar();
+
+            storeImageRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+                    while (!uriTask.isComplete());
+
+                    if (uriTask.isSuccessful()) {
+                        String storeImageUri = uriTask.getResult().toString();
+                        storeRef.update("storeImage", storeImageUri).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                deactivateProgressBar();
+                                storeImageView.setImageURI(imageUri);
+                                Toast.makeText(getContext(), "가게사진이 성공적으로 변경되었습니다.", Toast.LENGTH_LONG).show();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                deactivateProgressBar();
+                                Log.e("StoreSettingFragment", e.getMessage());
+                                Toast.makeText(getContext(), R.string.toast_problem_occurred, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } else {
+                        deactivateProgressBar();
+                        Log.e("StoreSettingFragment", uriTask.getException().getMessage());
+                        Toast.makeText(getContext(), R.string.toast_problem_occurred, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    deactivateProgressBar();
+                    Toast.makeText(getContext(), "가게사진 변경에 실패하였습니다.", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 
     private void processPasswordChange() {
