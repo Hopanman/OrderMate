@@ -95,6 +95,7 @@ public class StoreSettingFragment extends Fragment {
     private Window window;
     private AlertDialog addressDialog;
     private final int REQUEST_CAMERA_CODE = 101;
+    private final int REQUEST_GALLERY_CODE = 102;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -132,7 +133,11 @@ public class StoreSettingFragment extends Fragment {
                                 requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CAMERA_CODE);
                                 break;
                             case 1:
-                                Log.d("StoreSettingFragment", "앨범에서 사진 선택");
+                                if (hasStorageAccessPermission) {
+                                    choosePicture();
+                                    return;
+                                }
+                                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_GALLERY_CODE);
                                 break;
                             default:
                         }
@@ -463,6 +468,9 @@ public class StoreSettingFragment extends Fragment {
                     case REQUEST_CAMERA_CODE:
                         takePicture();
                         break;
+                    case REQUEST_GALLERY_CODE:
+                        choosePicture();
+                        break;
                     default:
                 }
             }
@@ -493,6 +501,12 @@ public class StoreSettingFragment extends Fragment {
         }
     }
 
+    private void choosePicture() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(intent, REQUEST_GALLERY_CODE);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -501,6 +515,9 @@ public class StoreSettingFragment extends Fragment {
             switch (requestCode) {
                 case REQUEST_CAMERA_CODE:
                     processStoreImageChange(storeImageUri);
+                    break;
+                case REQUEST_GALLERY_CODE:
+                    processStoreImageChange(data.getData());
                     break;
             }
         }
