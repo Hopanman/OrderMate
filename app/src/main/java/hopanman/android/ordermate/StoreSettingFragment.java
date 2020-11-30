@@ -108,7 +108,7 @@ public class StoreSettingFragment extends Fragment {
             storeImageRef = FirebaseStorage.getInstance().getReference().child("storeImages").child(user.getUid());
         }
 
-        progressBar = ((StoreActivity)getActivity()).progressBar;
+        progressBar = rootView.findViewById(R.id.progressBar);
         window = ((StoreActivity)getActivity()).getWindow();
         int displayWidth = getResources().getDisplayMetrics().widthPixels;
         int storeContentsViewMaxWidth = (int)(displayWidth * 9 / 10.0);
