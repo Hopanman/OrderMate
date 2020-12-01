@@ -57,11 +57,14 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -81,6 +84,7 @@ public class StoreSettingFragment extends Fragment {
 
     private static final String API_KEY = "1DDE1A81-E100-37F2-B480-4FD8BD36C1D4";
 
+    private View storeSettingContainer;
     private TextView storeNameView, storeTelView, storeIntroductionView, storeHoursView, storeAddressView;
     private ShapeableImageView storeImageView;
     private Uri storeImageUri;
@@ -94,6 +98,7 @@ public class StoreSettingFragment extends Fragment {
     private ProgressBar progressBar;
     private Window window;
     private AlertDialog addressDialog;
+    private boolean isChange = false;
     private final int REQUEST_CAMERA_CODE = 101;
     private final int REQUEST_GALLERY_CODE = 102;
 
@@ -108,7 +113,10 @@ public class StoreSettingFragment extends Fragment {
             storeImageRef = FirebaseStorage.getInstance().getReference().child("storeImages").child(user.getUid());
         }
 
+        storeSettingContainer = rootView.findViewById(R.id.store_setting_container);
+        storeSettingContainer.setVisibility(View.INVISIBLE);
         progressBar = rootView.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
         window = ((StoreActivity)getActivity()).getWindow();
         int displayWidth = getResources().getDisplayMetrics().widthPixels;
         int storeContentsViewMaxWidth = (int)(displayWidth * 9 / 10.0);
@@ -206,7 +214,7 @@ public class StoreSettingFragment extends Fragment {
         storeOpenSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (storeRef != null) {
+                if (storeRef != null && isChange) {
                     activateProgressBar();
                     storeRef.update("isOpen", isChecked).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -448,6 +456,63 @@ public class StoreSettingFragment extends Fragment {
                 }).show();
             }
         });
+
+        if (storeRef != null) {
+            storeRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+
+                        if (document.get("storeName") != null) {
+                            storeNameView.setText((String)document.get("storeName"));
+                        }
+
+                        if (document.get("isOpen") != null) {
+                            storeOpenSwitch.setChecked((Boolean)document.get("isOpen"));
+                            isChange = true;
+                        }
+
+                        if (document.get("storeIntroduction") != null) {
+                            storeIntroductionView.setText((String)document.get("storeIntroduction"));
+                        }
+
+                        if (document.get("storeTel") != null) {
+                            storeTelView.setText((String)document.get("storeTel"));
+                        }
+
+                        if (document.get("storeHours") != null) {
+                            storeHoursView.setText((String)document.get("storeHours"));
+                        }
+
+                        if (document.get("storeAddress") != null) {
+                            storeAddressView.setText((String)document.get("storeAddress"));
+                        }
+
+                        if (document.get("storeImage") != null) {
+                            Picasso.get().load((String)document.get("storeImage")).into(storeImageView, new Callback() {
+                                @Override
+                                public void onSuccess() {
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    storeSettingContainer.setVisibility(View.VISIBLE);
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    Log.e("StoreSettingFragment", e.getMessage());
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    storeSettingContainer.setVisibility(View.VISIBLE);
+                                    Toast.makeText(getContext(), R.string.toast_store_image_load_failed, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        } else {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            storeSettingContainer.setVisibility(View.VISIBLE);
+                        }
+                    }
+                }
+            });
+        }
 
         return rootView;
     }
