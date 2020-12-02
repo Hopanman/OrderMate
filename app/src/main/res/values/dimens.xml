@@ -2,6 +2,7 @@
 <resources>
     <dimen name="login_margin_left_right">30dp</dimen>
     <dimen name="login_margin_bottom">20dp</dimen>
+    <dimen name="login_button_height">60dp</dimen>
     <dimen name="store_setting_row_height">80dp</dimen>
     <dimen name="store_setting_row_margin_left_right">10dp</dimen>
 </resources>

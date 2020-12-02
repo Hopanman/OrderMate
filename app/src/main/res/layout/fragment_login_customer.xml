@@ -33,5 +33,22 @@
             layout="@layout/include_login_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+
+        <Button
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+            android:id="@+id/customer_google_login_button"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/login_button_height"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="@dimen/login_margin_left_right"
+            android:layout_marginRight="@dimen/login_margin_left_right"
+            android:text="@string/login_google"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#99000000"
+            android:textAllCaps="false"
+            app:icon="@drawable/ic_google"
+            app:iconTint="@null"
+            app:strokeColor="#60000000" />
     </LinearLayout>
 </layout>
