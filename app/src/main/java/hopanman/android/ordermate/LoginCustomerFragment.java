@@ -92,6 +92,16 @@ public class LoginCustomerFragment extends Fragment {
            }
        });
 
+       Button signupButton = rootView.findViewById(R.id.customer_signup_button);
+       signupButton.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               Intent intent = new Intent(getContext(), SignupActivity.class);
+               startActivity(intent);
+               getActivity().overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
+           }
+       });
+
        return rootView;
     }
 

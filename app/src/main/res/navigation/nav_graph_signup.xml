@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_signup"
+    app:startDestination="@id/signup1Fragment">
+
+    <fragment
+        android:id="@+id/signup1Fragment"
+        android:name="hopanman.android.ordermate.Signup1Fragment"
+        android:label="fragment_signup_1"
+        tools:layout="@layout/fragment_signup_1" >
+        <action
+            android:id="@+id/action_signup1Fragment_to_signup2Fragment"
+            app:destination="@id/signup2Fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signup2Fragment"
+        android:name="hopanman.android.ordermate.Signup2Fragment"
+        android:label="fragment_signup_2"
+        tools:layout="@layout/fragment_signup_2" />
+</navigation>

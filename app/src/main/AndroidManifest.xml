@@ -34,17 +34,22 @@
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.OrderMate.NoActionBar"></activity>
+            android:theme="@style/Theme.OrderMate.NoActionBar" />
+        <activity
+            android:name=".SignupActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.OrderMate.NoActionBar" />
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".StoreActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.OrderMate.NoActionBar"></activity>
+            android:theme="@style/Theme.OrderMate.NoActionBar" />
+
         <provider
-            android:authorities="${applicationId}.fileprovider"
             android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
