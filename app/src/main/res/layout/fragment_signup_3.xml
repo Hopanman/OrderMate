@@ -1,14 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     tools:context=".Signup3Fragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent">
 
-</FrameLayout>
+        <include
+            layout="@layout/include_signup_next_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:text="@{@string/next}"
+            app:layout_constraintBottom_toBottomOf="@+id/guideline_signup_bottom"
+            app:layout_constraintEnd_toEndOf="@+id/guideline_signup_end"
+            app:layout_constraintStart_toStartOf="@+id/guideline_signup_start" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_signup_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/signup_margin_left_right" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_signup_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/signup_margin_left_right" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_signup_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="@dimen/signup_margin_bottom" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
