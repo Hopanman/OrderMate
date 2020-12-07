@@ -5,17 +5,53 @@
     tools:context=".Signup1Fragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/signup_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/signup_header"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <include
+                android:id="@+id/signup_button_back"
+                layout="@layout/include_header_button_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/header_button_icon_margin_left"
+                android:layout_marginLeft="@dimen/header_button_icon_margin_left"
+                app:icon="@{@drawable/ic_back}"
+                app:iconDescription="@{@string/back}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/signup_header_title"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/signup"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
             layout="@layout/include_signup_next_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:text="@{@string/next}"
             app:layout_constraintBottom_toBottomOf="@+id/guideline_signup_bottom"
             app:layout_constraintEnd_toEndOf="@+id/guideline_signup_end"
-            app:layout_constraintStart_toStartOf="@+id/guideline_signup_start" />
+            app:layout_constraintStart_toStartOf="@+id/guideline_signup_start"
+            app:text="@{@string/next}" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_signup_start"
@@ -37,5 +73,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_end="@dimen/signup_margin_bottom" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

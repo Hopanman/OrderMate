@@ -5,17 +5,28 @@
     tools:context=".Signup4Fragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/signup_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/signup_header"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
             layout="@layout/include_signup_next_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:text="@{@string/done}"
             app:layout_constraintBottom_toBottomOf="@+id/guideline_signup_bottom"
             app:layout_constraintEnd_toEndOf="@+id/guideline_signup_end"
-            app:layout_constraintStart_toStartOf="@+id/guideline_signup_start" />
+            app:layout_constraintStart_toStartOf="@+id/guideline_signup_start"
+            app:text="@{@string/done}" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_signup_start"

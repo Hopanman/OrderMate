@@ -9,7 +9,9 @@
     <string name="password_finding">비밀번호 찾기</string>
     <string name="login">로그인</string>
     <string name="login_google">Google로 로그인</string>
-    <string name="signup">이메일로 회원가입하기</string>
+    <string name="signup_email">이메일로 회원가입하기</string>
+    <string name="signup">회원가입</string>
+    <string name="back">뒤로가기</string>
     <string name="next">다음으로</string>
     <string name="done">완료</string>
     <string name="order_list">주문내역</string>

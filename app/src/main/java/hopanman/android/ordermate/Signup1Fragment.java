@@ -20,6 +20,14 @@ public class Signup1Fragment extends Fragment {
                              Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup)FragmentSignup1Binding.inflate(inflater).getRoot();
 
+        View backButton = rootView.findViewById(R.id.signup_button_back);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
+
         Button nextButton = rootView.findViewById(R.id.signup_next_button);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
