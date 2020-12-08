@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import hopanman.android.ordermate.databinding.FragmentSignup1Binding;
 import hopanman.android.ordermate.databinding.FragmentSignup2Binding;
 
 
@@ -20,6 +19,14 @@ public class Signup2Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup)FragmentSignup2Binding.inflate(inflater).getRoot();
+
+        View backButton = rootView.findViewById(R.id.signup_button_back);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
 
         Button nextButton = rootView.findViewById(R.id.signup_next_button);
         nextButton.setOnClickListener(new View.OnClickListener() {

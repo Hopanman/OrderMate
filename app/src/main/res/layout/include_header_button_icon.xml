@@ -15,8 +15,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header_button_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/header_button_background">
 
         <ImageView
             android:layout_width="16dp"
