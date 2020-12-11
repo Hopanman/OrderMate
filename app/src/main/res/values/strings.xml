@@ -14,6 +14,7 @@
     <string name="back">뒤로가기</string>
     <string name="next">다음으로</string>
     <string name="done">완료</string>
+    <string name="check_duplicate">중복확인</string>
     <string name="order_list">주문내역</string>
     <string name="last_order">지난주문</string>
     <string name="menu_mgm">메뉴관리</string>

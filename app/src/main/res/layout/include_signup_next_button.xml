@@ -15,6 +15,7 @@
             android:id="@+id/signup_next_button"
             android:layout_width="match_parent"
             android:layout_height="60dp"
+            android:enabled="false"
             android:text="@{text}"
             android:textSize="16sp"
             android:textStyle="bold"

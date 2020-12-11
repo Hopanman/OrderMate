@@ -4,75 +4,124 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".Signup1Fragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/signup_container"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/signup_header"
+            android:id="@+id/signup_container"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="match_parent">
 
-            <include
-                android:id="@+id/signup_button_back"
-                layout="@layout/include_header_button_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="@dimen/header_button_icon_margin_left"
-                android:layout_marginLeft="@dimen/header_button_icon_margin_left"
-                app:icon="@{@drawable/ic_back}"
-                app:iconDescription="@{@string/back}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/signup_header_title"
-                style="@style/TextAppearance.MaterialComponents.Headline6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/signup"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/signup_header"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <include
+                    android:id="@+id/signup_button_back"
+                    layout="@layout/include_header_button_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="@dimen/header_button_icon_margin_left"
+                    android:layout_marginLeft="@dimen/header_button_icon_margin_left"
+                    app:icon="@{@drawable/ic_back}"
+                    app:iconDescription="@{@string/back}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/signup_header_title"
+                    style="@style/TextAppearance.MaterialComponents.Headline6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/signup"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/signup_email_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:hint="@string/email"
+                app:endIconMode="clear_text"
+                app:layout_constraintEnd_toStartOf="@+id/signup_check_duplicate_button"
+                app:layout_constraintStart_toStartOf="@+id/guideline_signup_start"
+                app:layout_constraintTop_toTopOf="@+id/guideline_signup_top">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/signup_email_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/signup_check_duplicate_button"
+                android:layout_width="wrap_content"
+                android:layout_height="64dp"
+                android:enabled="false"
+                android:text="@string/check_duplicate"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@+id/guideline_signup_end"
+                app:layout_constraintTop_toTopOf="@+id/guideline_signup_top" />
+
+            <include
+                layout="@layout/include_signup_next_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline_signup_bottom"
+                app:layout_constraintEnd_toEndOf="@+id/guideline_signup_end"
+                app:layout_constraintStart_toStartOf="@+id/guideline_signup_start"
+                app:text="@{@string/next}" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_signup_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/signup_margin_left_right" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_signup_end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/signup_margin_left_right" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_signup_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="@dimen/signup_margin_top" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_signup_bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="@dimen/signup_margin_bottom" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
-            layout="@layout/include_signup_next_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@+id/guideline_signup_bottom"
-            app:layout_constraintEnd_toEndOf="@+id/guideline_signup_end"
-            app:layout_constraintStart_toStartOf="@+id/guideline_signup_start"
-            app:text="@{@string/next}" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_signup_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="@dimen/signup_margin_left_right" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_signup_end"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_end="@dimen/signup_margin_left_right" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_signup_bottom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_end="@dimen/signup_margin_bottom" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:id="@+id/store_progressbar"
+            layout="@layout/include_progressbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 </layout>
