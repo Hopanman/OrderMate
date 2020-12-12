@@ -57,6 +57,7 @@
                 android:layout_marginRight="10dp"
                 android:hint="@string/email"
                 app:endIconMode="clear_text"
+                app:helperTextTextColor="@color/colorPrimary"
                 app:layout_constraintEnd_toStartOf="@+id/signup_check_duplicate_button"
                 app:layout_constraintStart_toStartOf="@+id/guideline_signup_start"
                 app:layout_constraintTop_toTopOf="@+id/guideline_signup_top">

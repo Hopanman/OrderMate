@@ -59,7 +59,8 @@ public class Signup1Fragment extends Fragment {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NavHostFragment.findNavController(Signup1Fragment.this).navigate(R.id.action_signup1Fragment_to_signup2Fragment);
+                NavHostFragment.findNavController(Signup1Fragment.this)
+                               .navigate(Signup1FragmentDirections.actionSignup1FragmentToSignup2Fragment(emailEditText.getText().toString()));
             }
         });
 
@@ -130,7 +131,8 @@ public class Signup1Fragment extends Fragment {
                                                  checkDuplicateButton.setEnabled(false);
                                                  nextButton.setEnabled(true);
                                              } else {
-
+                                                 emailLayout.setError("이미 사용 중인 이메일입니다.");
+                                                 checkDuplicateButton.setEnabled(false);
                                              }
                                          } else {
                                              deactivateProgressBar();

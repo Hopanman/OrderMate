@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_signup2Fragment_to_signup3Fragment"
             app:destination="@id/signup3Fragment" />
+        <argument
+            android:name="customerEmail"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/signup3Fragment"
@@ -31,10 +34,26 @@
         <action
             android:id="@+id/action_signup3Fragment_to_signup4Fragment"
             app:destination="@id/signup4Fragment" />
+        <argument
+            android:name="customerEmail"
+            app:argType="string" />
+        <argument
+            android:name="customerPassword"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/signup4Fragment"
         android:name="hopanman.android.ordermate.Signup4Fragment"
         android:label="fragment_signup_4"
-        tools:layout="@layout/fragment_signup_4" />
+        tools:layout="@layout/fragment_signup_4" >
+        <argument
+            android:name="customerEmail"
+            app:argType="string" />
+        <argument
+            android:name="customerPassword"
+            app:argType="string" />
+        <argument
+            android:name="customerName"
+            app:argType="string" />
+    </fragment>
 </navigation>
