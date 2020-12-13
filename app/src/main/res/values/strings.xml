@@ -8,6 +8,7 @@
     <string name="id">아이디</string>
     <string name="email">이메일</string>
     <string name="nickname">닉네임</string>
+    <string name="phone">휴대폰번호</string>
     <string name="password_finding">비밀번호 찾기</string>
     <string name="login">로그인</string>
     <string name="login_google">Google로 로그인</string>

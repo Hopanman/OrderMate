@@ -120,7 +120,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
-            android:id="@+id/store_progressbar"
+            android:id="@+id/signup_progressbar"
             layout="@layout/include_progressbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
