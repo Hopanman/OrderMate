@@ -48,7 +48,7 @@ public class LauncherActivity extends AppCompatActivity {
                                     intent.putExtra("storeName", storeName);
                                 }
                                 else {
-                                    intent = new Intent(getApplicationContext(), MainActivity.class);
+                                    intent = new Intent(getApplicationContext(), CustomerActivity.class);
                                 }
 
                                 startActivity(intent);

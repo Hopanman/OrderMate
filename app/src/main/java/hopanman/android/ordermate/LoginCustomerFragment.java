@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -113,7 +112,7 @@ public class LoginCustomerFragment extends Fragment {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
                             deactivateProgressBar();
-                            Intent intent = new Intent(getContext(), MainActivity.class);
+                            Intent intent = new Intent(getContext(), CustomerActivity.class);
                             startActivity(intent);
                             getActivity().overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
                             getActivity().finish();
@@ -258,7 +257,7 @@ public class LoginCustomerFragment extends Fragment {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         deactivateProgressBar();
-                                        Intent intent = new Intent(getContext(), MainActivity.class);
+                                        Intent intent = new Intent(getContext(), CustomerActivity.class);
                                         startActivity(intent);
                                         getActivity().overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
                                         getActivity().finish();
@@ -266,7 +265,7 @@ public class LoginCustomerFragment extends Fragment {
                                 });
                     } else {
                         deactivateProgressBar();
-                        Intent intent = new Intent(getContext(), MainActivity.class);
+                        Intent intent = new Intent(getContext(), CustomerActivity.class);
                         startActivity(intent);
                         getActivity().overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
                         getActivity().finish();

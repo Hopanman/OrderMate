@@ -18,7 +18,6 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -84,7 +83,7 @@ public class Signup4Fragment extends Fragment {
                                                  @Override
                                                  public void onSuccess(Void aVoid) {
                                                      deactivateProgressBar();
-                                                     Intent intent = new Intent(getContext(), MainActivity.class);
+                                                     Intent intent = new Intent(getContext(), CustomerActivity.class);
                                                      intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                                      startActivity(intent);
                                                      getActivity().overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
