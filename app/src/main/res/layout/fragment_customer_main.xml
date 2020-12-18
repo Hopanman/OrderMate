@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".CustomerMainFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <com.naver.maps.map.MapView
+        android:id="@+id/customer_main_map_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/home" />
-
+        app:navermap_latitude="36.475877"
+        app:navermap_longitude="127.717082"
+        app:navermap_zoom="5.98" />
 </FrameLayout>

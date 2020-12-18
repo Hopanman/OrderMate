@@ -21,6 +21,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OrderMate"
         android:usesCleartextTraffic="true">
+        <meta-data
+            android:name="com.naver.maps.map.CLIENT_ID"
+            android:value="@string/naver_map_client_id" />
         <activity
             android:name=".LauncherActivity"
             android:screenOrientation="portrait"
