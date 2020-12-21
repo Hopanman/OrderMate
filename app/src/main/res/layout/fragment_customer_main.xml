@@ -10,7 +10,7 @@
         android:id="@+id/customer_main_map_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:navermap_latitude="36.475877"
-        app:navermap_longitude="127.717082"
-        app:navermap_zoom="5.98" />
+        app:navermap_latitude="37.524039"
+        app:navermap_longitude="126.926018"
+        app:navermap_zoom="15" />
 </FrameLayout>

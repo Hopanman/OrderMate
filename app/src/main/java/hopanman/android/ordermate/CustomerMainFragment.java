@@ -6,12 +6,18 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.geometry.LatLngBounds;
 import com.naver.maps.map.CameraAnimation;
@@ -21,7 +27,11 @@ import com.naver.maps.map.MapView;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.UiSettings;
+import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.util.FusedLocationSource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class CustomerMainFragment extends Fragment implements OnMapReadyCallback {
@@ -31,6 +41,8 @@ public class CustomerMainFragment extends Fragment implements OnMapReadyCallback
     private FusedLocationSource locationSource;
     private final int REQUEST_LOCATION_CODE = 101;
     private boolean isSpecified = false;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -106,7 +118,7 @@ public class CustomerMainFragment extends Fragment implements OnMapReadyCallback
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.naverMap = naverMap;
 
-        naverMap.setMinZoom(5.98);
+        naverMap.setMinZoom(15);
         naverMap.setMaxZoom(19.0);
         naverMap.setExtent(new LatLngBounds(new LatLng(31.94, 123.74), new LatLng(38.82, 131.87)));
         naverMap.setLocationSource(locationSource);
@@ -129,5 +141,35 @@ public class CustomerMainFragment extends Fragment implements OnMapReadyCallback
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         float density = displayMetrics.density;
         uiSettings.setLogoMargin(0, (int)(10 * density), (int)(10 * density), 0);
+
+        setMarker();
+    }
+
+    private void setMarker() {
+        new Thread(() -> {
+            db.collection("stores")
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            List<Marker> markers = new ArrayList<>();
+
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Marker marker = new Marker();
+                                GeoPoint geoPoint = document.getGeoPoint("storeCoordinates");
+                                marker.setPosition(new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude()));
+                                markers.add(marker);
+                                // TODO 1.오픈, 비오픈 마커 구분 2.주소등록 안된 가게 처리 3.근처가게 제한 마커 표시 문제
+                            }
+
+                            handler.post(() -> {
+                                for (Marker marker : markers) marker.setMap(naverMap);
+                            });
+                        } else {
+                            handler.post(() -> {
+                                Toast.makeText(getContext(), "가게정보를 불러오는데 실패하였습니다.", Toast.LENGTH_LONG).show();
+                            });
+                        }
+                    });
+        }).start();
     }
 }
