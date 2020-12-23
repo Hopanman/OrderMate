@@ -13,4 +13,16 @@
         app:navermap_latitude="37.524039"
         app:navermap_longitude="126.926018"
         app:navermap_zoom="15" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/customer_main_my_location_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="10dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:contentDescription="@string/my_location"
+        android:src="@drawable/ic_my_location"
+        app:tint="@color/white"
+        app:fabSize="mini" />
 </FrameLayout>

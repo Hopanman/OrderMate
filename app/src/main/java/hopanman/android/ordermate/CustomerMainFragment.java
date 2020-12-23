@@ -1,6 +1,8 @@
 package hopanman.android.ordermate;
 
 import android.Manifest;
+import android.content.Context;
+import android.location.LocationManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -56,6 +59,19 @@ public class CustomerMainFragment extends Fragment implements OnMapReadyCallback
 
         locationSource = new FusedLocationSource(this, REQUEST_LOCATION_CODE);
         requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_CODE);
+
+        FloatingActionButton locationButton = rootView.findViewById(R.id.customer_main_my_location_button);
+        locationButton.setOnClickListener(v -> {
+            LocationManager locationManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+            boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            boolean isNWProviderEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+            if (isGPSEnabled || isNWProviderEnabled) {
+                Toast.makeText(getContext(), "위치 서비스 켜짐", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getContext(), "위치 서비스 꺼짐", Toast.LENGTH_LONG).show();
+            }
+        });
 
         return rootView;
     }
@@ -158,7 +174,7 @@ public class CustomerMainFragment extends Fragment implements OnMapReadyCallback
                                 if (document.get("storeCoordinates") != null) {
                                     GeoPoint geoPoint = (GeoPoint) document.get("storeCoordinates");
                                     Marker marker = new Marker();
-                                    marker.setIcon(OverlayImage.fromResource(R.drawable.ic_marker_store));
+                                    marker.setIcon(OverlayImage.fromResource(R.drawable.ic_marker_store_closed));
                                     marker.setPosition(new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude()));
                                     markers.add(marker);
                                 }
