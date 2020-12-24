@@ -2,10 +2,14 @@ package hopanman.android.ordermate;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
@@ -17,6 +21,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -44,6 +54,7 @@ public class CustomerMainFragment extends Fragment implements OnMapReadyCallback
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
     private final int REQUEST_LOCATION_CODE = 101;
+    private final int REQUEST_LOCATION_SETTING_CODE = 102;
     private boolean isSpecified = false;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Handler handler = new Handler(Looper.getMainLooper());
@@ -62,14 +73,43 @@ public class CustomerMainFragment extends Fragment implements OnMapReadyCallback
 
         FloatingActionButton locationButton = rootView.findViewById(R.id.customer_main_my_location_button);
         locationButton.setOnClickListener(v -> {
+            boolean hasLocationPermission = (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+                    && (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+
+            if (!hasLocationPermission) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_CODE);
+                return;
+            }
+
             LocationManager locationManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
             boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             boolean isNWProviderEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
             if (isGPSEnabled || isNWProviderEnabled) {
-                Toast.makeText(getContext(), "위치 서비스 켜짐", Toast.LENGTH_LONG).show();
+                Location location = null;
+                if (isGPSEnabled) location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                else location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                naverMap.moveCamera(CameraUpdate.scrollTo(new LatLng(location.getLatitude(), location.getLongitude()))
+                        .animate(CameraAnimation.Linear));
             } else {
-                Toast.makeText(getContext(), "위치 서비스 꺼짐", Toast.LENGTH_LONG).show();
+                LocationRequest locationRequest = LocationRequest.create();
+                LocationSettingsRequest locationSettingsRequest = new LocationSettingsRequest.Builder()
+                        .addLocationRequest(locationRequest)
+                        .setAlwaysShow(true).build();
+                LocationServices.getSettingsClient(getActivity())
+                        .checkLocationSettings(locationSettingsRequest)
+                        .addOnFailureListener(e -> {
+                            ResolvableApiException rae = (ResolvableApiException)e;
+
+                            switch (rae.getStatusCode()) {
+                                case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                    try {
+                                        rae.startResolutionForResult(getActivity(), REQUEST_LOCATION_SETTING_CODE);
+                                    } catch (IntentSender.SendIntentException sendIntentException) {
+                                        sendIntentException.printStackTrace();
+                                    }
+                            }
+                        });
             }
         });
 
