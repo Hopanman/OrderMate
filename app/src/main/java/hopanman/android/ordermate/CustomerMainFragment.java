@@ -106,7 +106,7 @@ public class CustomerMainFragment extends Fragment implements OnMapReadyCallback
                                     try {
                                         rae.startResolutionForResult(getActivity(), REQUEST_LOCATION_SETTING_CODE);
                                     } catch (IntentSender.SendIntentException sendIntentException) {
-                                        sendIntentException.printStackTrace();
+                                        Toast.makeText(getContext(), "위치 서비스를 사용 설정하세요.", Toast.LENGTH_LONG).show();
                                     }
                             }
                         });
