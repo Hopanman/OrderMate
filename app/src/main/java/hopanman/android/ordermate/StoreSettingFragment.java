@@ -122,36 +122,30 @@ public class StoreSettingFragment extends Fragment {
         int storeContentsViewMaxWidth = (int)(displayWidth * 9 / 10.0);
 
         storeImageView = rootView.findViewById(R.id.store_image);
-        storeImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-                builder.setTitle("가게 사진").setItems(R.array.dialog_picture_select_items, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        boolean hasCameraPermission = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
-                        boolean hasStorageAccessPermission = (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-                                                          && (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
-                        switch (which) {
-                            case 0:
-                                if (hasCameraPermission && hasStorageAccessPermission) {
-                                    takePicture();
-                                    return;
-                                }
-                                requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CAMERA_CODE);
-                                break;
-                            case 1:
-                                if (hasStorageAccessPermission) {
-                                    choosePicture();
-                                    return;
-                                }
-                                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_GALLERY_CODE);
-                                break;
-                            default:
+        storeImageView.setOnClickListener(v -> {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+            builder.setTitle("가게 사진").setItems(R.array.dialog_picture_select_items, (dialog, which) -> {
+                boolean hasCameraPermission = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+                boolean hasStorageAccessPermission = (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                        && (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+                switch (which) {
+                    case 0:
+                        if (hasCameraPermission && hasStorageAccessPermission) {
+                            takePicture();
+                            return;
                         }
-                    }
-                }).show();
-            }
+                        requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CAMERA_CODE);
+                        break;
+                    case 1:
+                        if (hasStorageAccessPermission) {
+                            choosePicture();
+                            return;
+                        }
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_GALLERY_CODE);
+                        break;
+                    default:
+                }
+            }).show();
         });
 
         storeNameView = rootView.findViewById(R.id.store_name);
